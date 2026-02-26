@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+@theme {
+  --color-servweld-blue: #3e4b95;
+  --color-servweld-black: #050504;
+  --color-servweld-white: #ffffff;
+
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-white text-servweld-black antialiased;
+    font-family: var(--font-sans);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-bold text-servweld-black;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-servweld-blue text-white px-6 py-2.5 rounded-lg font-semibold transition-all hover:opacity-90 active:scale-95 flex items-center gap-2;
+  }
+
+  .btn-outline {
+    @apply border-2 border-servweld-blue text-servweld-blue px-6 py-2.5 rounded-lg font-semibold transition-all hover:bg-servweld-blue hover:text-white active:scale-95 flex items-center gap-2;
+  }
+}
