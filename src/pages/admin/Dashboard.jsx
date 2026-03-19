@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
-import { Plus, Edit2, Trash2, LogOut, Package, Search, ExternalLink, ShieldCheck, Globe, Settings as SettingsIcon, Users, Image as ImageIcon, Menu, X } from 'lucide-react';
+import { Plus, Edit2, Trash2, LogOut, Package, Search, ExternalLink, ShieldCheck, Globe, Settings as SettingsIcon, Users, Image as ImageIcon, Menu, X, GripVertical, Save } from 'lucide-react';
 import SettingsForm from './SettingsForm';
 import UserManagement from './UserManagement';
 import GalleryManagement from './GalleryManagement';
@@ -11,9 +11,14 @@ const Dashboard = () => {
     const [brands, setBrands] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [savingOrder, setSavingOrder] = useState(false);
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const activeTab = searchParams.get('tab') || 'products';
+
+    // Drag-to-reorder
+    const dragIdx = useRef(null);
+    const dragOverIdx = useRef(null);
 
     useEffect(() => {
         checkUser();
@@ -31,10 +36,18 @@ const Dashboard = () => {
 
     const fetchProducts = async () => {
         setLoading(true);
-        const { data, error } = await supabase
+        let { data, error } = await supabase
             .from('products')
             .select('*')
-            .order('created_at', { ascending: false });
+            .order('display_order', { ascending: true, nullsFirst: false });
+
+        if (error && error.message && error.message.includes('display_order')) {
+            // Column not yet added — fall back
+            ({ data, error } = await supabase
+                .from('products')
+                .select('*')
+                .order('created_at', { ascending: false }));
+        }
 
         if (!error && data) setProducts(data);
         setLoading(false);
@@ -82,36 +95,94 @@ const Dashboard = () => {
         }
     };
 
-    const filteredItems = activeTab === 'products'
-        ? products.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()) || p.category.toLowerCase().includes(searchTerm.toLowerCase()))
-        : brands.filter(b => b.name.toLowerCase().includes(searchTerm.toLowerCase()));
+    // ---- Drag to reorder products ----
+    const onDragStart = (idx) => { dragIdx.current = idx; };
+    const onDragEnter = (idx) => { dragOverIdx.current = idx; };
+    const onDragEnd = () => {
+        const from = dragIdx.current;
+        const to = dragOverIdx.current;
+        if (from === null || to === null || from === to) return;
+        const updated = [...products];
+        const [moved] = updated.splice(from, 1);
+        updated.splice(to, 0, moved);
+        setProducts(updated);
+        dragIdx.current = null;
+        dragOverIdx.current = null;
+    };
+
+    const saveOrder = async () => {
+        setSavingOrder(true);
+        try {
+            const updates = products.map((p, idx) =>
+                supabase.from('products').update({ display_order: idx + 1 }).eq('id', p.id)
+            );
+            await Promise.all(updates);
+            alert('Ordem salva com sucesso!');
+        } catch (err) {
+            alert('Erro ao salvar ordem: ' + err.message);
+        } finally {
+            setSavingOrder(false);
+        }
+    };
+
+    const filteredProducts = products.filter(p =>
+        p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.category.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    const filteredBrands = brands.filter(b =>
+        b.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    const filteredItems = activeTab === 'products' ? filteredProducts : filteredBrands;
 
     const ProductsTable = () => (
         <div className="overflow-x-auto">
             <table className="w-full text-left">
                 <thead>
                     <tr className="bg-gray-50 text-gray-400 text-xs font-bold uppercase tracking-wider">
-                        <th className="px-6 py-4">Equipamento</th>
-                        <th className="px-6 py-4">Categoria</th>
-                        <th className="px-6 py-4 text-center">Ações</th>
+                        <th className="px-4 py-4 w-8"></th>
+                        <th className="px-4 py-4 w-10 text-center">#</th>
+                        <th className="px-4 py-4">Equipamento</th>
+                        <th className="px-4 py-4">Categoria</th>
+                        <th className="px-4 py-4 text-center">Ações</th>
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
                     {loading ? (
-                        <tr><td colSpan="3" className="px-6 py-20 text-center text-gray-400">Carregando...</td></tr>
-                    ) : filteredItems.length === 0 ? (
-                        <tr><td colSpan="3" className="px-6 py-20 text-center text-gray-500">Nenhum equipamento encontrado.</td></tr>
+                        <tr><td colSpan="5" className="px-6 py-20 text-center text-gray-400">Carregando...</td></tr>
+                    ) : filteredProducts.length === 0 ? (
+                        <tr><td colSpan="5" className="px-6 py-20 text-center text-gray-500">Nenhum equipamento encontrado.</td></tr>
                     ) : (
-                        filteredItems.map((p) => (
-                            <tr key={p.id} className="hover:bg-gray-50 transition-colors group">
-                                <td className="px-6 py-5">
-                                    <div className="font-bold text-gray-900 group-hover:text-servweld-blue transition-colors">{p.name}</div>
-                                    <div className="text-sm text-gray-400">{p.type} • {p.amperage}A</div>
+                        filteredProducts.map((p, idx) => (
+                            <tr
+                                key={p.id}
+                                draggable
+                                onDragStart={() => onDragStart(idx)}
+                                onDragEnter={() => onDragEnter(idx)}
+                                onDragEnd={onDragEnd}
+                                onDragOver={(e) => e.preventDefault()}
+                                className="hover:bg-gray-50 transition-colors group cursor-grab active:cursor-grabbing"
+                            >
+                                <td className="px-4 py-5">
+                                    <GripVertical size={18} className="text-gray-300 group-hover:text-gray-400" />
                                 </td>
-                                <td className="px-6 py-5">
+                                <td className="px-4 py-5 text-center text-xs font-bold text-gray-400">
+                                    {idx + 1}
+                                </td>
+                                <td className="px-4 py-5">
+                                    <div className="flex items-center gap-3">
+                                        {p.image_url && (
+                                            <img src={p.image_url} alt={p.name} className="w-10 h-10 object-contain rounded-lg border border-gray-100 bg-gray-50 p-1 shrink-0" />
+                                        )}
+                                        <div>
+                                            <div className="font-bold text-gray-900 group-hover:text-servweld-blue transition-colors">{p.name}</div>
+                                            <div className="text-sm text-gray-400">{p.type}{p.amperage > 0 ? ` • ${p.amperage}A` : ''}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td className="px-4 py-5">
                                     <span className="px-3 py-1 bg-servweld-blue/5 text-servweld-blue text-xs font-bold rounded-full">{p.category}</span>
                                 </td>
-                                <td className="px-6 py-5">
+                                <td className="px-4 py-5">
                                     <div className="flex items-center justify-center gap-2">
                                         <button onClick={() => navigate(`/admin/editor/${p.id}`)} className="p-2 text-gray-400 hover:text-servweld-blue hover:bg-servweld-blue/5 rounded-lg transition-all"><Edit2 size={18} /></button>
                                         <button onClick={() => handleDeleteProduct(p.id)} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"><Trash2 size={18} /></button>
@@ -138,10 +209,10 @@ const Dashboard = () => {
                 <tbody className="divide-y divide-gray-50">
                     {loading ? (
                         <tr><td colSpan="3" className="px-6 py-20 text-center text-gray-400">Carregando...</td></tr>
-                    ) : filteredItems.length === 0 ? (
+                    ) : filteredBrands.length === 0 ? (
                         <tr><td colSpan="3" className="px-6 py-20 text-center text-gray-500">Nenhuma marca encontrada.</td></tr>
                     ) : (
-                        filteredItems.map((b) => (
+                        filteredBrands.map((b) => (
                             <tr key={b.id} className="hover:bg-gray-50 transition-colors group">
                                 <td className="px-6 py-5">
                                     <div className="flex items-center gap-4">
@@ -237,21 +308,33 @@ const Dashboard = () => {
                                             'Configurações de Layout'}
                         </h1>
                         <p className="text-gray-500 mt-1">
-                            {activeTab === 'products' ? 'Adicione, edite ou remova itens da área de locação' :
+                            {activeTab === 'products' ? 'Arraste as linhas para definir a ordem de exibição no site' :
                                 activeTab === 'brands' ? 'Gerencie as logomarcas e links de assistência' :
                                     activeTab === 'users' ? 'Gerencie quem pode acessar este painel' :
                                         'Ajuste os textos e mídias da página principal'}
                         </p>
                     </div>
-                    {['products', 'brands'].includes(activeTab) && (
-                        <button
-                            onClick={() => navigate(activeTab === 'products' ? '/admin/editor' : '/admin/marcas/editor')}
-                            className="bg-servweld-blue text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-opacity-90 transition-all shadow-lg shadow-servweld-blue/20"
-                        >
-                            <Plus size={20} />
-                            {activeTab === 'products' ? 'Novo Equipamento' : 'Nova Marca'}
-                        </button>
-                    )}
+                    <div className="flex gap-3">
+                        {activeTab === 'products' && (
+                            <button
+                                onClick={saveOrder}
+                                disabled={savingOrder}
+                                className="bg-green-600 text-white px-5 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-green-700 transition-all shadow-lg shadow-green-600/20 disabled:bg-gray-300 disabled:shadow-none"
+                            >
+                                <Save size={18} />
+                                {savingOrder ? 'Salvando...' : 'Salvar Ordem'}
+                            </button>
+                        )}
+                        {['products', 'brands'].includes(activeTab) && (
+                            <button
+                                onClick={() => navigate(activeTab === 'products' ? '/admin/editor' : '/admin/marcas/editor')}
+                                className="bg-servweld-blue text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-opacity-90 transition-all shadow-lg shadow-servweld-blue/20"
+                            >
+                                <Plus size={20} />
+                                {activeTab === 'products' ? 'Novo Equipamento' : 'Nova Marca'}
+                            </button>
+                        )}
+                    </div>
                 </div>
 
                 {activeTab === 'settings' ? (

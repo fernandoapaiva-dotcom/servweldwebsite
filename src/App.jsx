@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
+import { useState, useCallback } from 'react';
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import Rental from './pages/Rental';
@@ -9,12 +10,22 @@ import AdminLogin from './pages/admin/Login';
 import AdminDashboard from './pages/admin/Dashboard';
 import ProductForm from './pages/admin/ProductForm';
 import BrandForm from './pages/admin/BrandForm';
+import ResetPassword from './pages/admin/ResetPassword';
+import SplashScreen from './components/SplashScreen';
 import { ContactProvider } from './context/ContactContext';
 
 function App() {
+  // Show splash on every full page load
+  const [showSplash, setShowSplash] = useState(true);
+
+  const handleSplashFinish = useCallback(() => {
+    setShowSplash(false);
+  }, []);
+
   return (
     <HelmetProvider>
       <ContactProvider>
+        {showSplash && <SplashScreen onFinish={handleSplashFinish} />}
         <Router>
           <Routes>
             <Route path="/" element={<Layout />}>
@@ -28,6 +39,7 @@ function App() {
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin/reset-password" element={<ResetPassword />} />
             <Route path="/admin/editor" element={<ProductForm />} />
             <Route path="/admin/editor/:id" element={<ProductForm />} />
             <Route path="/admin/marcas/editor" element={<BrandForm />} />

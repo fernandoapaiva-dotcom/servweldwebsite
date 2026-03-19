@@ -10,6 +10,9 @@ const Login = () => {
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
+    const [resetMode, setResetMode] = useState(false);
+    const [resetEmailSent, setResetEmailSent] = useState(false);
+
     const handleLogin = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -28,6 +31,24 @@ const Login = () => {
         }
     };
 
+    const handleResetPassword = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setError(null);
+
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: `${window.location.origin}/admin/reset-password`,
+        });
+
+        if (error) {
+            setError(error.message);
+            setLoading(false);
+        } else {
+            setResetEmailSent(true);
+            setLoading(false);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
             <div className="max-w-md w-full bg-white rounded-3xl shadow-xl p-8 border border-gray-100">
@@ -35,8 +56,14 @@ const Login = () => {
                     <div className="w-16 h-16 bg-servweld-blue/10 text-servweld-blue rounded-2xl flex items-center justify-center mx-auto mb-4">
                         <Lock size={32} />
                     </div>
-                    <h1 className="text-2xl font-bold text-gray-900">Área Administrativa</h1>
-                    <p className="text-gray-500 mt-2">Entre com suas credenciais para gerenciar o site</p>
+                    <h1 className="text-2xl font-bold text-gray-900">
+                        {resetMode ? 'Recuperar Senha' : 'Área Administrativa'}
+                    </h1>
+                    <p className="text-gray-500 mt-2">
+                        {resetMode 
+                            ? 'Informe seu e-mail para receber o link de recuperação' 
+                            : 'Entre com suas credenciais para gerenciar o site'}
+                    </p>
                 </div>
 
                 {error && (
@@ -45,45 +72,82 @@ const Login = () => {
                     </div>
                 )}
 
-                <form onSubmit={handleLogin} className="space-y-6">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">E-mail</label>
-                        <div className="relative">
-                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                            <input
-                                type="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-servweld-blue focus:border-transparent outline-none transition-all"
-                                placeholder="exemplo@servweld.com.br"
-                                required
-                            />
+                {resetEmailSent ? (
+                    <div className="text-center space-y-6">
+                        <div className="bg-green-50 text-green-700 p-4 rounded-xl text-sm border border-green-100">
+                            E-mail de recuperação enviado! Verifique sua caixa de entrada.
                         </div>
+                        <button
+                            onClick={() => { setResetMode(false); setResetEmailSent(false); }}
+                            className="text-servweld-blue text-sm font-bold hover:underline"
+                        >
+                            Voltar para o login
+                        </button>
                     </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Senha</label>
-                        <div className="relative">
-                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                            <input
-                                type="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-servweld-blue focus:border-transparent outline-none transition-all"
-                                placeholder="••••••••"
-                                required
-                            />
+                ) : (
+                    <form onSubmit={resetMode ? handleResetPassword : handleLogin} className="space-y-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">E-mail</label>
+                            <div className="relative">
+                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                                <input
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-servweld-blue focus:border-transparent outline-none transition-all"
+                                    placeholder="exemplo@servweld.com.br"
+                                    required
+                                />
+                            </div>
                         </div>
-                    </div>
 
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full bg-servweld-blue text-white py-3 rounded-xl font-bold hover:bg-opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg shadow-servweld-blue/20"
-                    >
-                        {loading ? <Loader2 className="animate-spin" size={20} /> : 'Entrar no Painel'}
-                    </button>
-                </form>
+                        {!resetMode && (
+                            <div>
+                                <div className="flex justify-between mb-2">
+                                    <label className="text-sm font-medium text-gray-700">Senha</label>
+                                    <button
+                                        type="button"
+                                        onClick={() => setResetMode(true)}
+                                        className="text-xs text-servweld-blue hover:underline font-medium"
+                                    >
+                                        Esqueceu a senha?
+                                    </button>
+                                </div>
+                                <div className="relative">
+                                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                                    <input
+                                        type="password"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-servweld-blue focus:border-transparent outline-none transition-all"
+                                        placeholder="••••••••"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="space-y-4">
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="w-full bg-servweld-blue text-white py-3 rounded-xl font-bold hover:bg-opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg shadow-servweld-blue/20"
+                            >
+                                {loading ? <Loader2 className="animate-spin" size={20} /> : (resetMode ? 'Enviar Link' : 'Entrar no Painel')}
+                            </button>
+
+                            {resetMode && (
+                                <button
+                                    type="button"
+                                    onClick={() => setResetMode(false)}
+                                    className="w-full text-gray-400 text-sm hover:text-gray-600 transition-colors"
+                                >
+                                    Cancelar
+                                </button>
+                            )}
+                        </div>
+                    </form>
+                )}
 
                 <p className="mt-8 text-center text-sm text-gray-400">
                     &copy; {new Date().getFullYear()} Servweld Comercial Ltda.
