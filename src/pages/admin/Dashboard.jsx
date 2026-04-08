@@ -1,10 +1,13 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
-import { Plus, Edit2, Trash2, LogOut, Package, Search, ExternalLink, ShieldCheck, Globe, Settings as SettingsIcon, Users, Image as ImageIcon, Menu, X, GripVertical, Save } from 'lucide-react';
+import { Plus, Edit2, Trash2, LogOut, Package, Search, ExternalLink, ShieldCheck, Globe, Settings as SettingsIcon, Users, Image as ImageIcon, Menu, X, GripVertical, Save, Briefcase } from 'lucide-react';
 import SettingsForm from './SettingsForm';
 import UserManagement from './UserManagement';
 import GalleryManagement from './GalleryManagement';
+import ToolsManagement from './ToolsManagement';
+import ResumeManagement from './ResumeManagement';
+import ShowcaseManagement from './ShowcaseManagement';
 
 const Dashboard = () => {
     const [products, setProducts] = useState([]);
@@ -272,7 +275,10 @@ const Dashboard = () => {
                         { id: 'products', label: 'Equipamentos', icon: <Package size={20} /> },
                         { id: 'brands', label: 'Marcas / Fabricantes', icon: <ShieldCheck size={20} /> },
                         { id: 'gallery', label: 'Galeria (Quem Somos)', icon: <ImageIcon size={20} /> },
+                        { id: 'showcase', label: 'Carrossel (Home)', icon: <Zap size={20} /> },
                         { id: 'settings', label: 'Portal (Home)', icon: <SettingsIcon size={20} /> },
+                        { id: 'hub', label: 'Gerenciar Hub', icon: <Globe size={20} /> },
+                        { id: 'resumes', label: 'Banco de Currículos', icon: <Briefcase size={20} /> },
                         { id: 'users', label: 'Gestão de Time', icon: <Users size={20} /> },
                     ].map((tab) => (
                         <button
@@ -304,13 +310,18 @@ const Dashboard = () => {
                             {activeTab === 'products' ? 'Gerenciar Equipamentos' :
                                 activeTab === 'brands' ? 'Gerenciar Fabricantes' :
                                     activeTab === 'gallery' ? 'Gerenciar Galeria' :
+                                        activeTab === 'resumes' ? 'Banco de Currículos' :
                                         activeTab === 'users' ? 'Administradores do Sistema' :
-                                            'Configurações de Layout'}
+                                            activeTab === 'hub' ? 'Configurar Hub Interno' :
+                                                activeTab === 'showcase' ? 'Destaques da Home' :
+                                                    'Configurações de Layout'}
                         </h1>
                         <p className="text-gray-500 mt-1">
                             {activeTab === 'products' ? 'Arraste as linhas para definir a ordem de exibição no site' :
                                 activeTab === 'brands' ? 'Gerencie as logomarcas e links de assistência' :
+                                    activeTab === 'resumes' ? 'Visualize e filtros os candidatos que enviaram currículo' :
                                     activeTab === 'users' ? 'Gerencie quem pode acessar este painel' :
+                                    activeTab === 'showcase' ? 'Gerencie as máquinas que aparecem no carrossel de fotos' :
                                         'Ajuste os textos e mídias da página principal'}
                         </p>
                     </div>
@@ -348,6 +359,18 @@ const Dashboard = () => {
                 ) : activeTab === 'gallery' ? (
                     <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
                         <GalleryManagement />
+                    </div>
+                ) : activeTab === 'hub' ? (
+                    <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
+                        <ToolsManagement />
+                    </div>
+                ) : activeTab === 'resumes' ? (
+                    <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
+                        <ResumeManagement />
+                    </div>
+                ) : activeTab === 'showcase' ? (
+                    <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
+                        <ShowcaseManagement />
                     </div>
                 ) : (
                     <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">

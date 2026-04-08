@@ -11,6 +11,10 @@ import AdminDashboard from './pages/admin/Dashboard';
 import ProductForm from './pages/admin/ProductForm';
 import BrandForm from './pages/admin/BrandForm';
 import ResetPassword from './pages/admin/ResetPassword';
+import RestrictedLogin from './pages/RestrictedLogin';
+import HubDashboard from './pages/HubDashboard';
+import Careers from './pages/Careers';
+import EquipmentHub from './pages/EquipmentHub';
 import SplashScreen from './components/SplashScreen';
 import { ContactProvider } from './context/ContactContext';
 
@@ -33,8 +37,14 @@ function App() {
               <Route path="locacao" element={<Rental />} />
               <Route path="assistencia" element={<Assistance />} />
               <Route path="contato" element={<Contact />} />
+              <Route path="trabalhe-conosco" element={<Careers />} />
+              <Route path="restrito" element={<RestrictedLogin />} />
+              <Route path="equipamentos" element={<EquipmentHub />} />
               <Route path="*" element={<Home />} />
             </Route>
+
+            {/* Internal Hub Routes */}
+            <Route path="/hub" element={<HubDashboard />} />
 
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminDashboard />} />

@@ -38,7 +38,27 @@ const Footer = () => {
                             <li><Link to="/" className="text-gray-400 hover:text-white transition-colors">Home</Link></li>
                             <li><Link to="/locacao" className="text-gray-400 hover:text-white transition-colors">Locação</Link></li>
                             <li><Link to="/assistencia" className="text-gray-400 hover:text-white transition-colors">Assistência Técnica</Link></li>
+                            <li><Link to="/trabalhe-conosco" className="text-gray-400 hover:text-white transition-colors">Trabalhe Conosco</Link></li>
                             <li><Link to="/venda" className="text-gray-400 hover:text-white transition-colors">Venda de Equipamentos</Link></li>
+                            <li><Link to="/equipamentos" className="text-gray-400 hover:text-white transition-colors">Equipamentos e Serviços</Link></li>
+                            <li className="pt-2">
+                                <Link to="/restrito" className="inline-flex items-center gap-2 text-servweld-blue hover:text-blue-400 font-bold transition-all group text-sm">
+                                    <svg 
+                                        width="16" 
+                                        height="16" 
+                                        viewBox="0 0 24 24" 
+                                        fill="none" 
+                                        stroke="currentColor" 
+                                        strokeWidth="2.5" 
+                                        strokeLinecap="round" 
+                                        strokeLinejoin="round"
+                                        className="group-hover:rotate-12 transition-transform"
+                                    >
+                                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                                    </svg>
+                                    Portal do Colaborador
+                                </Link>
+                            </li>
                         </ul>
                     </div>
 
@@ -80,6 +100,27 @@ const Footer = () => {
                     <p className="text-gray-500 text-sm">
                         &copy; {new Date().getFullYear()} Servweld. Todos os direitos reservados.
                     </p>
+                    <Link 
+                        to="/restrito" 
+                        className="text-gray-900/5 hover:text-gray-500/20 transition-all duration-700 p-2 rounded-full group"
+                        title="Portal Interno"
+                    >
+                        <div className="group-hover:rotate-180 transition-transform duration-1000">
+                            <svg 
+                                width="12" 
+                                height="12" 
+                                viewBox="0 0 24 24" 
+                                fill="none" 
+                                stroke="currentColor" 
+                                strokeWidth="2" 
+                                strokeLinecap="round" 
+                                strokeLinejoin="round"
+                            >
+                                <path d="M12.22 2h-.44a2 2 0 0 0-2 2 2 2 0 0 1-2 2 2 2 0 0 0-2 2 2 2 0 0 1-2 2 2 2 0 0 0-2 2v.44a2 2 0 0 0 2 2 2 2 0 0 1 2 2 2 2 0 0 0 2 2 2 2 0 0 1 2 2 2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2 2 2 0 0 1 2-2 2 2 0 0 0 2-2 2 2 0 0 1 2-2 2 2 0 0 0 2-2v-.44a2 2 0 0 0-2-2 2 2 0 0 1-2-2 2 2 0 0 0-2-2 2 2 0 0 1-2-2 2 2 0 0 0-2-2z" />
+                                <circle cx="12" cy="12" r="3" />
+                            </svg>
+                        </div>
+                    </Link>
                     <p className="text-gray-500 text-sm mt-4 md:mt-0">
                         Desenvolvido por Fernando_M_Aragao
                     </p>

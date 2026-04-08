@@ -73,8 +73,9 @@ const Assistance = () => {
     return (
         <>
             <SEO
-                title="Assistência Técnica Especializada"
-                description="Manutenção preventiva e corretiva de máquinas de solda multimarcas. Técnicos certificados e peças originais."
+                title="Conserto e Manutenção de Máquinas de Solda"
+                description="Assistência técnica multimarcas em Brasília. Conserto de máquinas MIG/MAG, TIG, Inversores, Corte Plasma, Maçaricos e CNC com garantia."
+                keywords="conserto de máquina de solda, manutenção de inversor de solda, assistência técnica esab, balmer, lincoln, conserto de tocha mig, reparo de placa eletrônica de solda, calibração de máquinas de solda"
             />
 
             <div className="bg-white">

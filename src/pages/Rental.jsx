@@ -126,8 +126,9 @@ const Rental = () => {
     return (
         <>
             <SEO
-                title="Locação de Equipamentos"
-                description="Confira nosso catálogo de locação: MIG/MAG, TIG, Corte Plasma e compressores. Equipamentos revisados para sua obra ou indústria."
+                title="Locação de Máquinas de Solda e Corte"
+                description="Locação ágil de máquinas MIG/MAG, TIG, Inversores e Corte Plasma em Brasília. Equipamentos revisados, prontos para uso industrial e obras."
+                keywords="locação de máquina de solda, aluguel de mig/mag, aluguel de tig, locação de corte plasma, inversores de solda para alugar, retificadores de solda, máquina de repuxo spotter"
             />
 
             <div className="bg-gray-50 min-h-screen py-12">

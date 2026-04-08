@@ -4,6 +4,7 @@ import { Settings, Wrench, ShieldCheck, ArrowRight, ShoppingBag, MapPin, Externa
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import SEO from '../components/SEO';
+import EquipmentCarousel from '../components/EquipmentCarousel';
 import { useContact } from '../context/ContactContext';
 
 const Home = () => {
@@ -122,6 +123,10 @@ const Home = () => {
                         </Link>
                         <Link to={hero.secondary_button_link} className="btn-outline py-5 px-10 text-xl backdrop-blur-md hover:bg-white hover:text-servweld-black hover:scale-105 transition-transform border-2">
                             {hero.secondary_button_text}
+                        </Link>
+                        <Link to="/restrito" className="flex items-center gap-2 text-white/40 hover:text-white transition-colors text-sm font-bold uppercase tracking-widest mt-4 w-full justify-center group">
+                            <ShieldCheck size={16} className="group-hover:rotate-12 transition-transform" />
+                            Acesso Restrito
                         </Link>
                     </motion.div>
                 </div>
@@ -243,7 +248,9 @@ const Home = () => {
                 </div>
             </section>
 
-            {/* Servsolda Promotion - Sales Division */}
+            {/* Featured Equipment Carousel */}
+            <EquipmentCarousel />
+
             <section className="py-24 bg-white overflow-hidden relative border-t border-gray-100">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
